@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>JT's Bike Crawl Bingo Bash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2B241C;
+    --paper:#F2E8D5;
+    --paper-dim:#e8dcc3;
+    --tavern:#1F2A24;
+    --tavern-deep:#162019;
+    --pine:#4F8F73;
+    --pine-dim:#3a6b56;
+    --amber:#C97A2B;
+    --amber-bright:#E0913F;
+    --stamp:#9B2C2C;
+    --stamp-dim:#7a2222;
+    font-family:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 20% 0%, rgba(79,143,115,0.18), transparent 55%),
+      radial-gradient(circle at 85% 100%, rgba(201,122,43,0.14), transparent 50%),
+      var(--tavern);
+    color:var(--paper);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:22px 14px 48px;
+  }
+  .app{width:100%;max-width:480px;}
+
+  /* ---------- Header ticket ---------- */
+  .masthead{
+    text-align:center;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .masthead .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber-bright);
+    display:block;
+    margin-bottom:6px;
+  }
+  .masthead h1{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:clamp(30px,8vw,40px);
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    margin:0;
+    line-height:1.02;
+  }
+  .masthead h1 span{color:var(--amber-bright);}
+  .masthead .sub{
+    font-size:13px;
+    color:#cfd8d0;
+    margin-top:6px;
+  }
+
+  /* ---------- Winner banner ---------- */
+  .winner-banner{
+    display:none;
+    background:linear-gradient(135deg,var(--amber),var(--amber-bright));
+    color:var(--tavern-deep);
+    border-radius:12px;
+    padding:12px 16px;
+    text-align:center;
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:0.02em;
+    margin-bottom:16px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.35);
+    animation:pop-in 0.4s ease;
+  }
+  .winner-banner.show{display:block;}
+  @keyframes pop-in{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+  /* ---------- Card shell (ticket look) ---------- */
+  .ticket{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    padding:20px 16px 18px;
+    position:relative;
+    box-shadow:0 12px 30px rgba(0,0,0,0.35);
+  }
+  .ticket::before,.ticket::after{
+    content:"";
+    position:absolute;
+    width:22px;height:22px;
+    background:var(--tavern);
+    border-radius:50%;
+    top:50%;
+    transform:translateY(-50%);
+  }
+  .name-screen .ticket::before,.name-screen .ticket::after{display:none;}
+  .ticket::before{left:-11px;}
+  .ticket::after{right:-11px;}
+
+  /* ---------- Name screen ---------- */
+  .name-screen .ticket{text-align:center;}
+  .bike-emoji{font-size:34px;display:block;margin-bottom:6px;}
+  .name-screen label{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--pine-dim);
+    margin:14px 0 8px;
+  }
+  .name-screen input{
+    width:100%;
+    font-family:'Oswald',sans-serif;
+    font-size:20px;
+    text-align:center;
+    padding:12px 10px;
+    border:2px solid var(--tavern);
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+  }
+  .name-screen input:focus{border-color:var(--amber);}
+  .name-screen .hint{font-size:12px;color:#6b6153;margin-top:10px;}
+
+  /* ---------- Buttons ---------- */
+  button{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:transform 0.12s ease, filter 0.12s ease;
+  }
+  button:active{transform:scale(0.97);}
+  .btn-primary{
+    background:var(--pine);
+    color:#fff;
+    font-size:16px;
+    padding:13px 18px;
+    width:100%;
+    margin-top:18px;
+  }
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-row{display:flex;gap:10px;margin-top:14px;}
+  .btn-secondary{
+    flex:1;
+    background:transparent;
+    color:var(--tavern);
+    border:2px solid var(--tavern);
+    font-size:13px;
+    padding:11px 10px;
+  }
+  .btn-lock{
+    flex:1;
+    background:var(--stamp);
+    color:#fff;
+    font-size:13px;
+    padding:11px 10px;
+  }
+  .btn-lock:hover{filter:brightness(1.1);}
+  .switch-rider{
+    display:block;
+    text-align:center;
+    width:100%;
+    background:none;
+    border:none;
+    color:#a9b8ae;
+    font-family:'Inter',sans-serif;
+    text-transform:none;
+    letter-spacing:0;
+    font-size:12px;
+    margin-top:14px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+
+  /* ---------- Card header row ---------- */
+  .card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:12px;
+    border-bottom:2px dashed var(--tavern);
+    padding-bottom:10px;
+  }
+  .card-head .rider{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    text-transform:uppercase;
+  }
+  .card-head .status{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:20px;
+  }
+  .status.unlocked{background:#e4d9bd;color:#6b6153;}
+  .status.locked{background:var(--pine);color:#fff;}
+
+  /* ---------- Grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:5px;
+  }
+  .cell{
+    position:relative;
+    aspect-ratio:1/1;
+    background:#fff;
+    border:1.5px solid #d8cca9;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:4px;
+    text-align:center;
+    font-size:10.5px;
+    line-height:1.15;
+    font-weight:500;
+    color:var(--ink);
+    overflow:hidden;
+  }
+  .cell.tappable{cursor:pointer;}
+  .cell.tappable:active{transform:scale(0.95);}
+  .cell .txt{position:relative;z-index:1;}
+  .cell.done{background:var(--paper-dim);}
+  .cell.done .txt{opacity:0.35;}
+  .stamp-mark{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  .stamp-mark svg{
+    width:88%;height:88%;
+    animation:stamp-in 0.25s cubic-bezier(.3,1.4,.6,1);
+  }
+  @keyframes stamp-in{
+    from{transform:scale(1.6) rotate(-18deg);opacity:0;}
+    to{transform:scale(1) rotate(-10deg);opacity:1;}
+  }
+
+  .win-line-note{
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:#6b6153;
+    margin-top:12px;
+  }
+
+  .footer-note{
+    text-align:center;
+    font-size:11px;
+    color:#7d8880;
+    margin-top:16px;
+  }
+
+  /* ---------- Announcement (broadcast) ---------- */
+  .announce{
+    display:none;
+    background:var(--pine);
+    color:#fff;
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:14px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.3);
+  }
+  .announce.show{display:block;}
+  .announce .row{margin-bottom:8px;}
+  .announce .row:last-child{margin-bottom:0;}
+  .announce .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:#d7ecdf;
+    display:block;
+    margin-bottom:2px;
+  }
+  .announce .val{font-size:14px;font-weight:600;line-height:1.3;white-space:pre-line;}
+
+  /* ---------- Admin panel (Justin only) ---------- */
+  .admin-panel{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    padding:16px;
+    margin-top:16px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.35);
+  }
+  .admin-panel h3{
+    font-family:'Oswald',sans-serif;
+    font-size:14px;
+    text-transform:uppercase;
+    margin:0 0 10px;
+    color:var(--stamp);
+  }
+  .admin-panel .field{margin-bottom:12px;}
+  .admin-panel label{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--pine-dim);
+    margin-bottom:5px;
+  }
+  .admin-panel textarea{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:9px 10px;
+    border:2px solid var(--tavern);
+    border-radius:8px;
+    resize:vertical;
+    min-height:44px;
+  }
+  .admin-panel .field-row{display:flex;gap:8px;margin-top:6px;}
+  .admin-panel .send-btn{
+    flex:1;
+    background:var(--pine);
+    color:#fff;
+    font-size:12px;
+    padding:9px 8px;
+  }
+  .admin-panel .clear-btn{
+    background:transparent;
+    border:2px solid var(--tavern);
+    color:var(--tavern);
+    font-size:12px;
+    padding:9px 12px;
+  }
+  .admin-panel hr{border:none;border-top:2px dashed #d8cca9;margin:16px 0;}
+  .results-list{list-style:none;margin:0;padding:0;}
+  .results-list li{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    padding:7px 0;
+    border-bottom:1px solid #e4d9bd;
+  }
+  .results-list li:last-child{border-bottom:none;}
+  .results-empty{font-size:12px;color:#6b6153;}
+
+  /* ---------- Preset trivia list ---------- */
+  .preset-list{list-style:none;margin:0;padding:0;}
+  .preset-item{
+    border:1.5px solid #d8cca9;
+    border-radius:8px;
+    padding:9px 10px;
+    margin-bottom:8px;
+  }
+  .preset-item.sent{border-color:var(--pine);background:#eef4ef;}
+  .preset-item .q{
+    font-size:12.5px;
+    line-height:1.35;
+    white-space:pre-line;
+    margin-bottom:8px;
+  }
+  .preset-item .preset-send{
+    width:100%;
+    background:var(--amber);
+    color:#fff;
+    font-size:11px;
+    padding:8px;
+  }
+  .preset-item.sent .preset-send{background:var(--pine);}
+  .preset-item .answer-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    background:#e4d9bd;
+    border-radius:6px;
+    padding:6px 8px;
+    margin-bottom:8px;
+  }
+  .preset-item .answer-row .answer-text{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--ink);
+  }
+  .preset-item .answer-row .answer-text b{color:var(--stamp);}
+  .preset-item .reveal-btn{
+    background:var(--tavern);
+    color:#fff;
+    font-size:10px;
+    padding:6px 8px;
+    white-space:nowrap;
+  }
+  .preset-item .reveal-btn.revealed{background:var(--stamp);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <span class="eyebrow">Birthday Bar Crawl · 5×5</span>
+    <h1>JT's Bike Crawl<br><span>Bingo Bash</span></h1>
+    <div class="sub">Tap a square once you've earned it. First full line wins.</div>
+  </div>
+
+  <div id="winnerBanner" class="winner-banner"></div>
+  <div id="announce" class="announce">
+    <div class="row" id="announceTrivia" style="display:none;">
+      <span class="label">📣 Trivia — from Justin</span>
+      <span class="val" id="announceTriviaText"></span>
+    </div>
+    <div class="row" id="announceChallenge" style="display:none;">
+      <span class="label">🎯 Mini-Challenge — from Justin</span>
+      <span class="val" id="announceChallengeText"></span>
+    </div>
+    <div class="row" id="announceAnswer" style="display:none;">
+      <span class="label">✅ Answer — from Justin</span>
+      <span class="val" id="announceAnswerText"></span>
+    </div>
+  </div>
+
+  <!-- NAME SCREEN -->
+  <div id="nameScreen" class="name-screen">
+    <div class="ticket">
+      <span class="bike-emoji">🚴</span>
+      <div style="font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;text-transform:uppercase;">Rider Check-In</div>
+      <label for="nameInput">Your name</label>
+      <input id="nameInput" type="text" placeholder="e.g. Sam" maxlength="24" autocomplete="off">
+      <button class="btn-primary" id="startBtn">Let's Ride</button>
+      <div class="hint">Locked-in cards are saved by name — refresh anytime and re-enter the same name to pick up where you left off.</div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" style="display:none;">
+    <div class="ticket">
+      <div class="card-head">
+        <div class="rider" id="riderName">—</div>
+        <div class="status unlocked" id="statusPill">Unlocked</div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div id="preLockControls" class="btn-row">
+        <button class="btn-secondary" id="shuffleBtn">🔀 Shuffle</button>
+        <button class="btn-lock" id="lockBtn">🔒 Lock In</button>
+      </div>
+
+      <div id="lockedNote" class="win-line-note" style="display:none;">Card locked. Tap squares as you complete them.</div>
+    </div>
+    <button class="switch-rider" id="switchBtn">Not you? Switch rider</button>
+
+    <!-- ADMIN PANEL (only visible when name = Justin) -->
+    <div id="adminPanel" class="admin-panel" style="display:none;">
+      <h3>📋 Preset Trivia (Sept 13)</h3>
+      <ul class="preset-list" id="presetList"></ul>
+      <hr>
+      <h3>🎙️ Send to Everyone</h3>
+      <div class="field">
+        <label for="triviaInput">Trivia question</label>
+        <textarea id="triviaInput" placeholder="Type this stop's trivia question…"></textarea>
+        <div class="field-row">
+          <button class="send-btn" id="sendTriviaBtn">Send Trivia</button>
+          <button class="clear-btn" id="clearTriviaBtn">Clear</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="challengeInput">Mini-challenge</label>
+        <textarea id="challengeInput" placeholder="Type this stop's mini-challenge…"></textarea>
+        <div class="field-row">
+          <button class="send-btn" id="sendChallengeBtn">Send Challenge</button>
+          <button class="clear-btn" id="clearChallengeBtn">Clear</button>
+        </div>
+      </div>
+      <hr>
+      <h3>🔄 Reset</h3>
+      <div class="field">
+        <label for="resetPlayerSelect">Reset one player's card</label>
+        <div class="field-row" style="margin-top:0;">
+          <select id="resetPlayerSelect" style="flex:1;font-family:'Inter',sans-serif;font-size:13px;padding:9px 8px;border:2px solid var(--tavern);border-radius:8px;background:#fff;color:var(--ink);"></select>
+          <button class="clear-btn" id="resetPlayerBtn">Reset</button>
+        </div>
+      </div>
+      <div class="field">
+        <button class="clear-btn" id="resetAllBtn" style="width:100%;color:var(--stamp);border-color:var(--stamp);">Reset Everyone (New Round)</button>
+      </div>
+      <hr>
+      <ul class="results-list" id="resultsList"></ul>
+      <div class="results-empty" id="resultsEmpty">No one's gotten bingo yet.</div>
+    </div>
+  </div>
+
+  <div class="footer-note">Data is stored in a shared Google Sheet for this crawl.</div>
+</div>
+
+<script>
+(function(){
+  // ---------- Sheets API config ----------
+  // Paste the Web app URL from your Apps Script deployment here:
+  var SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxteKfVao0AhQtyc10nAS9s4iVTklnxNpXf6B0Geke9mMlxHyAgggBQo36dvNEG9NOP/exec';
+
+  async function apiGet(params){
+    var qs = Object.keys(params).map(function(k){
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+    var res = await fetch(SHEETS_API_URL + '?' + qs);
+    return await res.json();
+  }
+
+  async function apiPost(payload){
+    // Sent as text/plain (not application/json) so the browser treats this as
+    // a "simple request" and skips a CORS preflight, which Apps Script doesn't handle.
+    var res = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  // ---------- Objective pool ----------
+  var DRINKS = [
+    {name:"IPA", article:"an"},
+    {name:"Stout", article:"a"},
+    {name:"Porter", article:"a"},
+    {name:"Wheat/Hefe", article:"a"},
+    {name:"Belgian Ale", article:"a"},
+    {name:"Pilsner", article:"a"},
+    {name:"Amber", article:"an"},
+    {name:"Sour", article:"a"},
+    {name:"NA", article:"an"}
+  ];
+  var TRIVIA = "Answer a trivia question correctly";
+  var CHALLENGE = "Complete a bar mini-challenge";
+  var ACTIVITIES = [
+    "Find someone else with a birthday",
+    "Play a full game of pool",
+    "Play a full game of darts",
+    "Take a shot with no hands",
+    "Collect three coasters from three separate bars",
+    "Order a drink with fruit garnish",
+    "Play an arcade game",
+    "Take a pic of an animal",
+    "Collect a drink umbrella",
+    "Pic of bathroom graffiti"
+  ];
+
+  // ---------- Preset trivia (Sept 13) ----------
+  var PRESET_TRIVIA = [
+    {
+      q: "On September 13, 1951, this celebrity, who first gained prominence in the 80s sitcom, Designing Women, would later become a recurring character in the 90s sitcom, Frasier, before starring in a hit comedy on HBO Max.",
+      options: ["Laurie Metcalf", "Jyn Erso", "Jean Smart", "Harriet Samson Harris"],
+      answer: "Jean Smart"
+    },
+    {
+      q: "On September 13, 1953, this F1 driver won his second of five World Driver's Championships and is one of the most successful drivers in F1 History.",
+      options: ["Nino Farina", "Juan Manuel Fangio", "Alberto Ascari", "Lando Calrissian"],
+      answer: "Juan Manuel Fangio"
+    },
+    {
+      q: "On September 13, 1985, this game was released on the Family Computer (Famicom), introducing to the world one of the most iconic video game characters ever created.",
+      options: ["Pac-Man", "Mario", "Yoda", "Donkey Kong"],
+      answer: "Mario"
+    },
+    {
+      q: "On September 13, 1437, a Portuguese expeditionary force initiated a failed attempt to seize this Moroccan citadel, of which the Battle is named after:",
+      options: ["Casablanca", "Takodana", "Marrakech", "Tangier"],
+      answer: "Tangier"
+    },
+    {
+      q: "On September 13, 1991, another installment of this famous franchise appropriately released in theatres. The franchise is:",
+      options: ["Star Wars", "A Nightmare on Elm Street", "James Bond", "Indiana Jones"],
+      answer: "A Nightmare on Elm Street"
+    },
+    {
+      q: "Bonus Trivia: All five trivia questions featured one answer for each question that is all related to this franchise. Type in the answer:",
+      options: [],
+      answer: "Star Wars",
+      answerNote: "Accept any reasonable variation — \"Star Wars\", \"Star Wars franchise\", \"Star Wars Trilogy\", etc."
+    }
+  ];
+
+  function presetFullText(item){
+    var text = item.q;
+    if(item.options.length){
+      text += '\n' + item.options.map(function(opt, i){ return (i+1) + '. ' + opt; }).join('\n');
+    }
+    return text;
+  }
+
+  function buildPool(){
+    var pool = [];
+    for(var t=0;t<5;t++) pool.push({text:TRIVIA, cat:"trivia"});
+    for(var c=0;c<5;c++) pool.push({text:CHALLENGE, cat:"challenge"});
+    DRINKS.forEach(function(d){
+      for(var i=0;i<3;i++) pool.push({text:"Drink "+d.article+" "+d.name, cat:"drink:"+d.name});
+    });
+    ACTIVITIES.forEach(function(a){
+      for(var i=0;i<2;i++) pool.push({text:a, cat:"activity:"+a});
+    });
+    return pool;
+  }
+
+  function shuffleArr(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+    }
+    return a;
+  }
+
+  function pickIndices(pool, predicate, count){
+    var idxs = [];
+    pool.forEach(function(item,i){ if(predicate(item)) idxs.push(i); });
+    idxs = shuffleArr(idxs);
+    return idxs.slice(0, count);
+  }
+
+  function generateCard(){
+    var pool = buildPool();
+    var used = {};
+
+    var triviaIdxs = pickIndices(pool, function(it){return it.cat==="trivia";}, 3);
+    triviaIdxs.forEach(function(i){used[i]=true;});
+    var challengeIdxs = pickIndices(pool, function(it){return it.cat==="challenge";}, 3);
+    challengeIdxs.forEach(function(i){used[i]=true;});
+
+    var remainingIdxs = [];
+    pool.forEach(function(it,i){ if(!used[i]) remainingIdxs.push(i); });
+    remainingIdxs = shuffleArr(remainingIdxs).slice(0, 19);
+
+    var chosenIdxs = Object.keys(used).map(Number).concat(remainingIdxs);
+    var items = chosenIdxs.map(function(i){return pool[i].text;});
+    items = shuffleArr(items);
+    return items;
+  }
+
+  // ---------- State ----------
+  var state = {
+    name: null,
+    items: [],
+    marks: new Array(25).fill(false),
+    locked: false
+  };
+  var winnerPollTimer = null;
+
+  var nameScreen = document.getElementById('nameScreen');
+  var gameScreen = document.getElementById('gameScreen');
+  var nameInput = document.getElementById('nameInput');
+  var startBtn = document.getElementById('startBtn');
+  var riderName = document.getElementById('riderName');
+  var statusPill = document.getElementById('statusPill');
+  var grid = document.getElementById('grid');
+  var preLockControls = document.getElementById('preLockControls');
+  var lockedNote = document.getElementById('lockedNote');
+  var shuffleBtn = document.getElementById('shuffleBtn');
+  var lockBtn = document.getElementById('lockBtn');
+  var switchBtn = document.getElementById('switchBtn');
+  var winnerBanner = document.getElementById('winnerBanner');
+  var announce = document.getElementById('announce');
+  var announceTriviaRow = document.getElementById('announceTrivia');
+  var announceTriviaText = document.getElementById('announceTriviaText');
+  var announceChallengeRow = document.getElementById('announceChallenge');
+  var announceChallengeText = document.getElementById('announceChallengeText');
+  var announceAnswerRow = document.getElementById('announceAnswer');
+  var announceAnswerText = document.getElementById('announceAnswerText');
+  var adminPanel = document.getElementById('adminPanel');
+  var triviaInput = document.getElementById('triviaInput');
+  var challengeInput = document.getElementById('challengeInput');
+  var sendTriviaBtn = document.getElementById('sendTriviaBtn');
+  var clearTriviaBtn = document.getElementById('clearTriviaBtn');
+  var sendChallengeBtn = document.getElementById('sendChallengeBtn');
+  var clearChallengeBtn = document.getElementById('clearChallengeBtn');
+  var resultsList = document.getElementById('resultsList');
+  var resultsEmpty = document.getElementById('resultsEmpty');
+  var resetPlayerSelect = document.getElementById('resetPlayerSelect');
+  var resetPlayerBtn = document.getElementById('resetPlayerBtn');
+  var resetAllBtn = document.getElementById('resetAllBtn');
+  var presetList = document.getElementById('presetList');
+  var lastSentPresetIndex = -1;
+  var revealedPresetIndex = -1;
+
+  function isJustin(){ return state.name && state.name.trim().toLowerCase() === 'justin'; }
+
+  async function registerPlayer(name){
+    try{ await apiPost({action:'registerPlayer', name: name.trim()}); }catch(e){ console.error(e); }
+  }
+
+  async function getPlayers(){
+    try{
+      var res = await apiGet({action:'getPlayers'});
+      return (res && res.players) ? res.players : [];
+    }catch(e){ return []; }
+  }
+
+  async function loadOrCreateCard(name){
+    await registerPlayer(name);
+    try{
+      var res = await apiGet({action:'getCard', name: name.trim()});
+      if(res && res.found){
+        state.name = name;
+        state.items = res.items;
+        state.marks = res.marks;
+        state.locked = res.locked;
+        return;
+      }
+    }catch(e){ /* not found, fall through */ }
+    state.name = name;
+    state.items = generateCard();
+    state.marks = new Array(25).fill(false);
+    state.locked = false;
+  }
+
+  async function saveCard(){
+    try{
+      await apiPost({
+        action: 'saveCard',
+        name: state.name,
+        items: state.items,
+        marks: state.marks,
+        locked: state.locked
+      });
+    }catch(e){ console.error('Save failed', e); }
+  }
+
+  var LINES = (function(){
+    var lines = [];
+    for(var r=0;r<5;r++){ var row=[]; for(var c=0;c<5;c++) row.push(r*5+c); lines.push(row); }
+    for(var c2=0;c2<5;c2++){ var col=[]; for(var r2=0;r2<5;r2++) col.push(r2*5+c2); lines.push(col); }
+    lines.push([0,6,12,18,24]);
+    lines.push([4,8,12,16,20]);
+    return lines;
+  })();
+
+  function checkBingo(marks){
+    return LINES.some(function(line){
+      return line.every(function(i){ return marks[i]; });
+    });
+  }
+
+  async function handleWinCheck(){
+    if(!checkBingo(state.marks)) return;
+    await recordResult();
+    try{
+      var res = await apiPost({action:'setWinnerIfEmpty', name: state.name});
+      if(res && res.found){
+        showWinnerBanner(res.name);
+      }
+    }catch(e){ console.error(e); }
+  }
+
+  async function recordResult(){
+    try{
+      await apiPost({action:'appendResult', name: state.name});
+    }catch(e){ console.error(e); }
+  }
+
+  async function pollResults(){
+    if(!isJustin()) return;
+    var list = [];
+    try{
+      var res = await apiGet({action:'getResults'});
+      if(res && res.results) list = res.results;
+    }catch(e){ list = []; }
+    list.sort(function(a,b){ return new Date(a.time) - new Date(b.time); });
+    resultsList.innerHTML = '';
+    if(list.length === 0){
+      resultsEmpty.style.display = 'block';
+    } else {
+      resultsEmpty.style.display = 'none';
+      list.forEach(function(r, idx){
+        var li = document.createElement('li');
+        var when = new Date(r.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        li.innerHTML = '<span>' + (idx === 0 ? '🥇 ' : '') + r.name + '</span><span>' + when + '</span>';
+        resultsList.appendChild(li);
+      });
+    }
+  }
+
+  async function pollAnnouncements(){
+    try{
+      var tRes = await apiGet({action:'getBroadcast', type:'trivia'});
+      if(tRes && tRes.text){
+        announceTriviaText.textContent = tRes.text;
+        announceTriviaRow.style.display = 'block';
+      } else {
+        announceTriviaRow.style.display = 'none';
+      }
+    }catch(e){ announceTriviaRow.style.display = 'none'; }
+
+    try{
+      var cRes = await apiGet({action:'getBroadcast', type:'challenge'});
+      if(cRes && cRes.text){
+        announceChallengeText.textContent = cRes.text;
+        announceChallengeRow.style.display = 'block';
+      } else {
+        announceChallengeRow.style.display = 'none';
+      }
+    }catch(e){ announceChallengeRow.style.display = 'none'; }
+
+    try{
+      var aRes = await apiGet({action:'getBroadcast', type:'answer'});
+      if(aRes && aRes.text){
+        announceAnswerText.textContent = aRes.text;
+        announceAnswerRow.style.display = 'block';
+      } else {
+        announceAnswerRow.style.display = 'none';
+      }
+    }catch(e){ announceAnswerRow.style.display = 'none'; }
+
+    var anyShown = announceTriviaRow.style.display !== 'none' || announceChallengeRow.style.display !== 'none' || announceAnswerRow.style.display !== 'none';
+    announce.classList.toggle('show', anyShown);
+  }
+
+  async function sendBroadcast(type, text){
+    try{
+      await apiPost({action:'setBroadcast', type: type, text: text});
+    }catch(e){ console.error(e); }
+    pollAnnouncements();
+  }
+
+  function showWinnerBanner(winnerName){
+    var mine = winnerName === state.name;
+    winnerBanner.textContent = mine ? ('🎉 BINGO! You got it first!') : ('🎉 ' + winnerName + ' got BINGO first!');
+    winnerBanner.classList.add('show');
+  }
+
+  async function pollWinner(){
+    try{
+      var res = await apiGet({action:'getWinner'});
+      if(res && res.found){
+        showWinnerBanner(res.name);
+      }
+    }catch(e){ /* no winner yet, keep banner hidden */ }
+  }
+
+  function renderGrid(){
+    grid.innerHTML = '';
+    state.items.forEach(function(text, i){
+      var cell = document.createElement('div');
+      cell.className = 'cell' + (state.locked ? ' tappable' : '') + (state.marks[i] ? ' done' : '');
+      var span = document.createElement('div');
+      span.className = 'txt';
+      span.textContent = text;
+      cell.appendChild(span);
+      if(state.marks[i]){
+        var stampWrap = document.createElement('div');
+        stampWrap.className = 'stamp-mark';
+        stampWrap.innerHTML = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#9B2C2C" stroke-width="6"/><line x1="25" y1="55" x2="45" y2="72" stroke="#9B2C2C" stroke-width="7" stroke-linecap="round"/><line x1="45" y1="72" x2="78" y2="30" stroke="#9B2C2C" stroke-width="7" stroke-linecap="round"/></svg>';
+        cell.appendChild(stampWrap);
+      }
+      if(state.locked){
+        cell.addEventListener('click', function(){ toggleCell(i); });
+      }
+      grid.appendChild(cell);
+    });
+  }
+
+  async function toggleCell(i){
+    state.marks[i] = !state.marks[i];
+    renderGrid();
+    await saveCard();
+    handleWinCheck();
+  }
+
+  function renderHeader(){
+    riderName.textContent = state.name;
+    if(state.locked){
+      statusPill.textContent = 'Locked In';
+      statusPill.className = 'status locked';
+      preLockControls.style.display = 'none';
+      lockedNote.style.display = 'block';
+    } else {
+      statusPill.textContent = 'Unlocked';
+      statusPill.className = 'status unlocked';
+      preLockControls.style.display = 'flex';
+      lockedNote.style.display = 'none';
+    }
+  }
+
+  function renderPresetList(){
+    presetList.innerHTML = '';
+    PRESET_TRIVIA.forEach(function(item, i){
+      var li = document.createElement('li');
+      li.className = 'preset-item' + (i === lastSentPresetIndex ? ' sent' : '');
+
+      var q = document.createElement('div');
+      q.className = 'q';
+      q.textContent = (i + 1) + '. ' + presetFullText(item);
+      li.appendChild(q);
+
+      var answerRow = document.createElement('div');
+      answerRow.className = 'answer-row';
+      var answerText = document.createElement('span');
+      answerText.className = 'answer-text';
+      answerText.innerHTML = 'Answer: <b>' + item.answer + '</b>' + (item.answerNote ? ' — ' + item.answerNote : '');
+      var revealBtn = document.createElement('button');
+      revealBtn.className = 'reveal-btn' + (i === revealedPresetIndex ? ' revealed' : '');
+      revealBtn.textContent = (i === revealedPresetIndex) ? '✓ Revealed' : 'Reveal Answer';
+      revealBtn.addEventListener('click', function(){
+        revealedPresetIndex = i;
+        sendBroadcast('answer', item.answer);
+        renderPresetList();
+      });
+      answerRow.appendChild(answerText);
+      answerRow.appendChild(revealBtn);
+      li.appendChild(answerRow);
+
+      var btn = document.createElement('button');
+      btn.className = 'preset-send';
+      btn.textContent = (i === lastSentPresetIndex) ? '✓ Sent' : 'Send This One';
+      btn.addEventListener('click', function(){
+        lastSentPresetIndex = i;
+        revealedPresetIndex = -1;
+        sendBroadcast('trivia', presetFullText(item));
+        sendBroadcast('answer', '');
+        renderPresetList();
+      });
+      li.appendChild(btn);
+
+      presetList.appendChild(li);
+    });
+  }
+
+  function renderAdmin(){
+    if(isJustin()){
+      adminPanel.style.display = 'block';
+      pollResults();
+      populatePlayerSelect();
+      renderPresetList();
+    } else {
+      adminPanel.style.display = 'none';
+    }
+  }
+
+  async function populatePlayerSelect(){
+    var players = await getPlayers();
+    resetPlayerSelect.innerHTML = '';
+    if(players.length === 0){
+      var opt = document.createElement('option');
+      opt.textContent = 'No riders yet';
+      resetPlayerSelect.appendChild(opt);
+      return;
+    }
+    players.forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      resetPlayerSelect.appendChild(opt);
+    });
+  }
+
+  async function resetPlayerCard(name){
+    try{ await apiPost({action:'resetPlayer', name: name}); }catch(e){ console.error(e); }
+    if(name.trim().toLowerCase() === state.name.trim().toLowerCase()){
+      await loadOrCreateCard(state.name);
+      renderAll();
+    }
+  }
+
+  async function resetEverything(){
+    try{ await apiPost({action:'resetAll'}); }catch(e){ console.error(e); }
+    winnerBanner.classList.remove('show');
+    announce.classList.remove('show');
+    await loadOrCreateCard(state.name);
+    renderAll();
+  }
+
+  function renderAll(){
+    renderHeader();
+    renderGrid();
+    renderAdmin();
+  }
+
+  startBtn.addEventListener('click', async function(){
+    var name = nameInput.value.trim();
+    if(!name) { nameInput.focus(); return; }
+    startBtn.disabled = true;
+    startBtn.textContent = 'Loading…';
+    await loadOrCreateCard(name);
+    nameScreen.style.display = 'none';
+    gameScreen.style.display = 'block';
+    renderAll();
+    pollWinner();
+    pollAnnouncements();
+    if(winnerPollTimer) clearInterval(winnerPollTimer);
+    winnerPollTimer = setInterval(function(){
+      pollWinner();
+      pollAnnouncements();
+      if(isJustin()) pollResults();
+    }, 4000);
+    startBtn.disabled = false;
+    startBtn.textContent = "Let's Ride";
+  });
+
+  nameInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') startBtn.click();
+  });
+
+  shuffleBtn.addEventListener('click', function(){
+    if(state.locked) return;
+    state.items = generateCard();
+    renderGrid();
+  });
+
+  lockBtn.addEventListener('click', async function(){
+    state.locked = true;
+    state.marks = new Array(25).fill(false);
+    await saveCard();
+    renderAll();
+  });
+
+  switchBtn.addEventListener('click', function(){
+    if(winnerPollTimer) clearInterval(winnerPollTimer);
+    gameScreen.style.display = 'none';
+    nameScreen.style.display = 'block';
+    nameInput.value = '';
+    nameInput.focus();
+  });
+
+  sendTriviaBtn.addEventListener('click', function(){
+    var text = triviaInput.value.trim();
+    if(!text) return;
+    lastSentPresetIndex = -1;
+    revealedPresetIndex = -1;
+    sendBroadcast('trivia', text);
+    sendBroadcast('answer', '');
+    renderPresetList();
+    triviaInput.value = '';
+  });
+  clearTriviaBtn.addEventListener('click', function(){
+    sendBroadcast('trivia', '');
+  });
+  sendChallengeBtn.addEventListener('click', function(){
+    var text = challengeInput.value.trim();
+    if(!text) return;
+    sendBroadcast('challenge', text);
+    challengeInput.value = '';
+  });
+  clearChallengeBtn.addEventListener('click', function(){
+    sendBroadcast('challenge', '');
+  });
+
+  resetPlayerBtn.addEventListener('click', function(){
+    var name = resetPlayerSelect.value;
+    if(!name) return;
+    if(!window.confirm('Reset ' + name + '\'s card? They\'ll get a brand new one next time they check in.')) return;
+    resetPlayerCard(name);
+  });
+
+  resetAllBtn.addEventListener('click', function(){
+    if(!window.confirm('Reset EVERYONE\'S cards, the winner, and all results for a new round? This can\'t be undone.')) return;
+    resetEverything();
+  });
+
+})();
+</script>
+</body>
+</html>
